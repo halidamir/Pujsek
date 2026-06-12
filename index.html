@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pujsek">
+<meta name="theme-color" content="#1a1a2e">
+<title>Pujsek</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+:root {
+  --bg: #0f0f1a;
+  --bg2: #1a1a2e;
+  --bg3: #16213e;
+  --card: #1e1e35;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0f0ff;
+  --text2: #9090b8;
+  --text3: #5a5a80;
+  --green: #2dd4a0;
+  --green-bg: rgba(45,212,160,0.12);
+  --red: #ff6b6b;
+  --red-bg: rgba(255,107,107,0.12);
+  --blue: #6b9fff;
+  --blue-bg: rgba(107,159,255,0.12);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.12);
+  --amber: #fbbf24;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --nav-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: -apple-system, 'SF Pro Display', BlinkMacSystemFont, sans-serif; font-size: 15px; }
+#app { display: flex; flex-direction: column; height: 100%; }
+.topbar { background: var(--bg2); padding: 12px 16px 8px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+.topbar-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; background: linear-gradient(135deg, #a78bfa, #6b9fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+#currency-select { background: var(--card); border: 0.5px solid var(--border2); color: var(--text); font-size: 13px; padding: 5px 8px; border-radius: var(--radius-sm); outline: none; }
+.pages { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(var(--nav-h) + var(--safe-bottom) + 16px); }
+.page { display: none; }
+.page.active { display: block; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: calc(var(--nav-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--bg2); border-top: 0.5px solid var(--border); display: flex; overflow-x: auto; z-index: 100; scrollbar-width: none; }
+.bottom-nav::-webkit-scrollbar { display: none; }
+.nav-btn { flex: 0 0 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 6px 0; transition: color 0.15s; }
+.nav-btn.active { color: var(--purple); }
+.nav-btn i { font-size: 22px; }
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.metric { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px; }
+.metric-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; letter-spacing: 0.03em; }
+.metric-value { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+.metric-value.green { color: var(--green); }
+.metric-value.red { color: var(--red); }
+.metric-value.blue { color: var(--blue); }
+.metric-value.purple { color: var(--purple); }
+.card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+.card-title { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 12px; }
+input, select { width: 100%; padding: 11px 13px; font-size: 15px; border-radius: var(--radius-sm); border: 0.5px solid var(--border2); background: var(--bg3); color: var(--text); margin-bottom: 10px; outline: none; }
+input::placeholder { color: var(--text3); }
+input:focus, select:focus { border-color: var(--purple); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.form-row input, .form-row select { margin-bottom: 0; }
+.btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border-radius: var(--radius-sm); border: none; cursor: pointer; margin-top: 4px; }
+.btn-primary { background: linear-gradient(135deg, #7c3aed, #4f46e5); color: #fff; }
+.btn-danger-sm { background: none; border: 0.5px solid var(--red-bg); color: var(--red); font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; font-size: 10px; font-weight: 600; color: var(--text3); padding: 0 4px 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+td { padding: 9px 4px; border-top: 0.5px solid var(--border); color: var(--text); vertical-align: middle; }
+.badge { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; }
+.badge-expense { background: var(--red-bg); color: var(--red); }
+.badge-income { background: var(--green-bg); color: var(--green); }
+.badge-saving { background: var(--blue-bg); color: var(--blue); }
+.badge-invest { background: var(--purple-bg); color: var(--purple); }
+.progress-track { background: var(--bg3); border-radius: 20px; height: 6px; margin-top: 6px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 20px; transition: width 0.4s ease; }
+.goal-item { padding: 12px 0; border-top: 0.5px solid var(--border); }
+.goal-item:first-child { border-top: none; padding-top: 0; }
+.goal-row { display: flex; justify-content: space-between; align-items: center; }
+.goal-name { font-size: 14px; font-weight: 600; }
+.goal-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 28px 16px; text-align: center; color: var(--text2); font-size: 14px; margin-bottom: 12px; }
+.upload-zone i { font-size: 32px; color: var(--purple); display: block; margin-bottom: 8px; }
+.rate-tag { font-size: 10px; color: var(--text3); background: var(--bg3); padding: 3px 7px; border-radius: 20px; border: 0.5px solid var(--border); }
+.empty { color: var(--text3); font-size: 13px; text-align: center; padding: 20px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-title { font-size: 15px; font-weight: 600; }
+.filter-sel { background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text); font-size: 12px; padding: 5px 8px; border-radius: 6px; outline: none; margin-bottom: 0; width: auto; }
+.chart-wrap { position: relative; height: 180px; margin: 4px 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--text2); }
+.legend span { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+.inv-summary { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); color: var(--text2); }
+.inv-summary strong { color: var(--text); }
+.csv-note { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.install-banner { background: var(--purple-bg); border: 0.5px solid rgba(167,139,250,0.3); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: var(--text); display: none; }
+.install-banner strong { color: var(--purple); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <span class="topbar-title">Pujsek</span>
+    <div class="topbar-right">
+      <span class="rate-tag" id="rate-tag">rates</span>
+      <select id="currency-select" onchange="changeCurrency(this.value)" aria-label="Currency">
+        <option value="EUR">EUR €</option>
+        <option value="USD">USD $</option>
+        <option value="GBP">GBP £</option>
+        <option value="CHF">CHF Fr</option>
+        <option value="HRK">HRK kn</option>
+        <option value="HUF">HUF Ft</option>
+        <option value="CZK">CZK Kč</option>
+        <option value="PLN">PLN zł</option>
+        <option value="RSD">RSD din</option>
+        <option value="SEK">SEK kr</option>
+        <option value="NOK">NOK kr</option>
+        <option value="JPY">JPY ¥</option>
+        <option value="CAD">CAD $</option>
+        <option value="AUD">AUD $</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pages">
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div id="install-banner" class="install-banner">
+        <strong>Install Pujsek</strong> — tap the share button in your browser, then "Add to Home Screen" to get the app icon!
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Income</div><div class="metric-value green" id="m-income">—</div></div>
+        <div class="metric"><div class="metric-label">Expenses</div><div class="metric-value red" id="m-expenses">—</div></div>
+        <div class="metric"><div class="metric-label">Net savings</div><div class="metric-value blue" id="m-savings">—</div></div>
+        <div class="metric"><div class="metric-label">Portfolio</div><div class="metric-value purple" id="m-invest">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Spending by category</div>
+        <div class="chart-wrap"><canvas id="chart-cat" role="img" aria-label="Spending by category"></canvas></div>
+        <div class="legend" id="legend-cat"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Income vs expenses</div>
+        <div class="chart-wrap"><canvas id="chart-monthly" role="img" aria-label="Monthly income vs expenses"></canvas></div>
+        <div class="legend">
+          <span><span class="legend-dot" style="background:#2dd4a0"></span>Income</span>
+          <span><span class="legend-dot" style="background:#ff6b6b"></span>Expenses</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent transactions</div>
+        <table><thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
+        <tbody id="recent-txns"><tr><td colspan="3" class="empty">No transactions yet</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div id="page-transactions" class="page">
+      <div class="card">
+        <div class="card-title">Add transaction</div>
+        <input type="date" id="txn-date">
+        <input type="text" id="txn-desc" placeholder="Description">
+        <div class="form-row" style="margin-bottom:10px">
+          <select id="txn-type"><option value="expense">Expense</option><option value="income">Income</option><option value="saving">Saving</option><option value="investment">Investment</option></select>
+          <select id="txn-cat"><option>Food & dining</option><option>Transport</option><option>Utilities</option><option>Housing</option><option>Entertainment</option><option>Healthcare</option><option>Shopping</option><option>Salary</option><option>Freelance</option><option>Savings account</option><option>Stocks</option><option>Crypto</option><option>Other</option></select>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="number" id="txn-amount" placeholder="Amount" step="0.01" min="0">
+          <input type="text" id="txn-account" placeholder="Account / card">
+        </div>
+        <button class="btn btn-primary" onclick="addTransaction()">Add transaction</button>
+      </div>
+      <div class="card">
+        <div class="section-header">
+          <span class="section-title">All transactions</span>
+          <select class="filter-sel" id="filter-type" onchange="renderTxnTable()">
+            <option value="">All</option><option value="expense">Expenses</option><option value="income">Income</option><option value="saving">Savings</option><option value="investment">Investments</option>
+          </select>
+        </div>
+        <table><thead><tr><th>Date</th><th>Desc</th><th>Type</th><th>Amt</th><th></th></tr></thead>
+        <tbody id="txn-table"><tr><td colspan="5" class="empty">No transactions yet</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- BUDGETS -->
+    <div id="page-budgets" class="page">
+      <div class="card">
+        <div class="card-title">Set monthly budget</div>
+        <div class="form-row" style="margin-bottom:10px">
+          <select id="budget-cat"><option>Food & dining</option><option>Transport</option><option>Utilities</option><option>Housing</option><option>Entertainment</option><option>Healthcare</option><option>Shopping</option><option>Other</option></select>
+          <input type="number" id="budget-amount" placeholder="Limit" min="0" step="10">
+        </div>
+        <button class="btn btn-primary" onclick="addBudget()">Add budget</button>
+      </div>
+      <div class="card">
+        <div class="card-title">This month's budgets</div>
+        <div id="budget-list"><p class="empty">No budgets set yet</p></div>
+      </div>
+    </div>
+
+    <!-- INVESTMENTS -->
+    <div id="page-investments" class="page">
+      <div class="card">
+        <div class="card-title">Add investment</div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="text" id="inv-name" placeholder="Asset (AAPL, BTC…)">
+          <select id="inv-type"><option>Stocks</option><option>ETF</option><option>Crypto</option><option>Bonds</option><option>Real estate</option><option>Other</option></select>
+        </div>
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="number" id="inv-cost" placeholder="Cost basis" step="0.01" min="0">
+          <input type="number" id="inv-value" placeholder="Current value" step="0.01" min="0">
+        </div>
+        <button class="btn btn-primary" onclick="addInvestment()">Add investment</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Portfolio</div>
+        <table><thead><tr><th>Asset</th><th>Type</th><th>Cost</th><th>Value</th><th>G/L</th><th></th></tr></thead>
+        <tbody id="inv-table"><tr><td colspan="6" class="empty">No investments yet</td></tr></tbody></table>
+        <div class="inv-summary" id="inv-summary" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- GOALS -->
+    <div id="page-goals" class="page">
+      <div class="card">
+        <div class="card-title">Add goal</div>
+        <input type="text" id="goal-name" placeholder="Goal name">
+        <div class="form-row" style="margin-bottom:10px">
+          <input type="number" id="goal-target" placeholder="Target" min="0" step="100">
+          <input type="number" id="goal-saved" placeholder="Saved so far" min="0" step="10">
+        </div>
+        <input type="date" id="goal-date">
+        <button class="btn btn-primary" onclick="addGoal()">Add goal</button>
+      </div>
+      <div class="card">
+        <div class="card-title">My goals</div>
+        <div id="goals-list"><p class="empty">No goals yet</p></div>
+      </div>
+    </div>
+
+    <!-- IMPORT -->
+    <div id="page-import" class="page">
+      <div class="card">
+        <div class="card-title">Import bank statement</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Upload a PDF or CSV bank statement. PDF statements are read automatically using AI.</p>
+        <label for="bank-file" style="display:block;border:1.5px dashed var(--border2);border-radius:var(--radius);padding:36px 16px;text-align:center;cursor:pointer;color:var(--text2)">
+          <i class="ti ti-upload" style="font-size:40px;color:var(--purple);display:block;margin-bottom:8px"></i>
+          <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">Tap here to choose file</p>
+          <p style="font-size:12px">Photo, screenshot, PDF or CSV</p>
+        </label>
+        <input type="file" id="bank-file" accept="image/*,application/pdf,text/csv,.pdf,.csv" style="display:block;width:100%;margin-top:10px;font-size:14px;color:var(--text2)" onchange="handleBankFile(this)">
+        <div id="import-status"></div>
+        <div id="import-result"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Or paste your statement text</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">Open your statement in Word or Notes, select all text, copy it, then paste it below.</p>
+        <textarea id="paste-text" placeholder="Paste your bank statement text here..." style="width:100%;height:160px;padding:12px;font-size:13px;border-radius:var(--radius-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);resize:none;outline:none;line-height:1.6"></textarea>
+        <button class="btn btn-primary" style="margin-top:8px" onclick="handlePastedText()">
+          <i class="ti ti-brain" style="margin-right:6px"></i>Read with AI
+        </button>
+        <div id="paste-status" style="margin-top:8px"></div>
+        <div id="paste-result" style="margin-top:8px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">How to get your statement</div>
+        <div class="csv-note">
+          <strong style="color:var(--text)">Most banks:</strong> Log in → Transactions → Export → PDF or CSV<br>
+          <strong style="color:var(--text)">Revolut / Wise:</strong> Statements → Download → PDF<br>
+          <strong style="color:var(--text)">ING / Erste / Raiffeisen:</strong> Account movements → Export
+        </div>
+      </div>
+    </div>
+
+    <!-- SYNC -->
+    <div id="page-sync" class="page">
+      <div class="card">
+        <div class="card-title">Back up your data</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Export all your Pujsek data to a file. Save it to iCloud, Google Drive, or send it to yourself. Use it to restore on another device.</p>
+        <button class="btn btn-primary" onclick="exportData()" style="margin-bottom:10px">
+          <i class="ti ti-download" style="margin-right:6px"></i>Export backup (.json)
+        </button>
+        <div id="export-stats" style="font-size:12px;color:var(--text3);text-align:center;margin-top:6px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Restore on this device</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Import a backup file exported from Pujsek. You can choose to merge with existing data or replace it entirely.</p>
+        <div class="upload-zone" onclick="document.getElementById('backup-file').click()">
+          <i class="ti ti-database-import"></i>
+          Tap to choose backup file<br>
+          <span style="font-size:12px">pujsek-backup-*.json</span>
+        </div>
+        <input type="file" id="backup-file" accept=".json" style="display:none" onchange="previewImport(this)">
+        <div id="import-preview"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">How to sync between devices</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.9">
+          <p><strong style="color:var(--text)">1.</strong> On your phone: tap Export backup</p>
+          <p><strong style="color:var(--text)">2.</strong> Save the file to iCloud Drive or AirDrop it to your iPad</p>
+          <p><strong style="color:var(--text)">3.</strong> On your iPad: open Pujsek → Sync → tap Restore → choose the file</p>
+          <p><strong style="color:var(--text)">4.</strong> Choose Merge (keeps both) or Replace (overwrites)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Home</button>
+    <button class="nav-btn" onclick="showPage('transactions',this)"><i class="ti ti-arrows-exchange"></i>Txns</button>
+    <button class="nav-btn" onclick="showPage('budgets',this)"><i class="ti ti-report-money"></i>Budgets</button>
+    <button class="nav-btn" onclick="showPage('investments',this)"><i class="ti ti-trending-up"></i>Invest</button>
+    <button class="nav-btn" onclick="showPage('goals',this)"><i class="ti ti-target"></i>Goals</button>
+    <button class="nav-btn" onclick="showPage('import',this)"><i class="ti ti-upload"></i>Import</button>
+    <button class="nav-btn" onclick="showPage('sync',this)"><i class="ti ti-refresh"></i>Sync</button>
+  </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let transactions = [], budgets = [], investments = [], goals = [];
+let activeCurrency = 'EUR', rates = {};
+
+try { transactions = JSON.parse(localStorage.getItem('pujsek_txns') || '[]'); } catch(e){}
+try { budgets = JSON.parse(localStorage.getItem('pujsek_budgets') || '[]'); } catch(e){}
+try { investments = JSON.parse(localStorage.getItem('pujsek_invs') || '[]'); } catch(e){}
+try { goals = JSON.parse(localStorage.getItem('pujsek_goals') || '[]'); } catch(e){}
+try { activeCurrency = localStorage.getItem('pujsek_currency') || 'EUR'; } catch(e){}
+try { rates = JSON.parse(localStorage.getItem('pujsek_rates') || '{}'); } catch(e){}
+
+const SYMBOLS = { EUR:'€',USD:'$',GBP:'£',CHF:'Fr',HRK:'kn',HUF:'Ft',CZK:'Kč',PLN:'zł',RSD:'din',SEK:'kr',NOK:'kr',JPY:'¥',CAD:'C$',AUD:'A$' };
+const BASE = { EUR:1,USD:1.08,GBP:0.86,CHF:0.96,HRK:7.53,HUF:390,CZK:25.1,PLN:4.27,RSD:117,SEK:11.3,NOK:11.6,JPY:162,CAD:1.47,AUD:1.65 };
+const sym = c => SYMBOLS[c] || c;
+const getRate = c => rates[c] || BASE[c] || 1;
+const toEUR = (a, c) => a / getRate(c);
+const fromEUR = (a, c) => a * getRate(c);
+const convert = (a, f, t) => f===t ? a : fromEUR(toEUR(a,f),t);
+
+function fmt(a, c) {
+  c = c || activeCurrency;
+  const v = Math.abs(a), s = sym(c);
+  const str = (c==='JPY'||c==='HUF') ? s+Math.round(v).toLocaleString() : s+v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});
+  return a < 0 ? '-'+str : str;
+}
+const dispAmt = a => fmt(fromEUR(a, activeCurrency));
+
+function save() {
+  try {
+    localStorage.setItem('pujsek_txns', JSON.stringify(transactions));
+    localStorage.setItem('pujsek_budgets', JSON.stringify(budgets));
+    localStorage.setItem('pujsek_invs', JSON.stringify(investments));
+    localStorage.setItem('pujsek_goals', JSON.stringify(goals));
+    localStorage.setItem('pujsek_currency', activeCurrency);
+  } catch(e){}
+}
+
+async function fetchRates() {
+  try {
+    const res = await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json');
+    if (!res.ok) throw 0;
+    const data = await res.json();
+    Object.keys(BASE).forEach(c => { if(data.eur[c.toLowerCase()]) rates[c]=data.eur[c.toLowerCase()]; });
+    try { localStorage.setItem('pujsek_rates', JSON.stringify(rates)); } catch(e){}
+    document.getElementById('rate-tag').textContent = 'live';
+    document.getElementById('rate-tag').style.color = '#2dd4a0';
+  } catch(e) {
+    document.getElementById('rate-tag').textContent = 'est.';
+  }
+  refreshView();
+}
+
+function changeCurrency(c) {
+  activeCurrency = c;
+  save();
+  refreshView();
+}
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  refreshView();
+}
+
+function refreshView() {
+  const active = document.querySelector('.page.active');
+  if (!active) return;
+  const id = active.id.replace('page-','');
+  if(id==='dashboard') renderDashboard();
+  else if(id==='transactions') renderTxnTable();
+  else if(id==='budgets') renderBudgets();
+  else if(id==='investments') renderInvestments();
+  else if(id==='goals') renderGoals();
+}
+
+function addTransaction() {
+  const date=document.getElementById('txn-date').value;
+  const desc=document.getElementById('txn-desc').value.trim();
+  const type=document.getElementById('txn-type').value;
+  const cat=document.getElementById('txn-cat').value;
+  const amount=parseFloat(document.getElementById('txn-amount').value);
+  const account=document.getElementById('txn-account').value.trim();
+  if(!date||!desc||isNaN(amount)||amount<=0){alert('Fill in date, description and amount.');return;}
+  transactions.unshift({id:Date.now(),date,desc,type,cat,amountEUR:toEUR(amount,activeCurrency),account,currency:activeCurrency});
+  save(); renderTxnTable();
+  document.getElementById('txn-desc').value='';
+  document.getElementById('txn-amount').value='';
+}
+
+function deleteTxn(id){transactions=transactions.filter(t=>t.id!==id);save();renderTxnTable();renderDashboard();}
+
+function renderTxnTable(){
+  const filter=document.getElementById('filter-type')?.value||'';
+  const list=filter?transactions.filter(t=>t.type===filter):transactions;
+  const tb=document.getElementById('txn-table');
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" class="empty">No transactions yet</td></tr>';return;}
+  tb.innerHTML=list.map(t=>{
+    const d=fromEUR(t.amountEUR,activeCurrency);
+    const col=t.type==='income'?'var(--green)':t.type==='expense'?'var(--red)':'var(--blue)';
+    return `<tr><td>${t.date.slice(5)}</td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.desc}</td><td><span class="badge badge-${t.type==='investment'?'invest':t.type}">${t.type.slice(0,3)}</span></td><td style="color:${col};font-weight:600">${t.type==='income'?'+':'−'}${fmt(d)}</td><td><button class="btn-danger-sm" onclick="deleteTxn(${t.id})"><i class="ti ti-trash"></i></button></td></tr>`;
+  }).join('');
+}
+
+let catChart, monthChart;
+function renderDashboard(){
+  const income=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amountEUR,0);
+  const expenses=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amountEUR,0);
+  const savings=transactions.filter(t=>t.type==='saving').reduce((s,t)=>s+t.amountEUR,0);
+  const invest=investments.reduce((s,i)=>s+i.valueEUR,0);
+  document.getElementById('m-income').textContent=dispAmt(income);
+  document.getElementById('m-expenses').textContent=dispAmt(expenses);
+  document.getElementById('m-savings').textContent=dispAmt(income-expenses+savings);
+  document.getElementById('m-invest').textContent=dispAmt(invest);
+
+  const recent=transactions.slice(0,5);
+  document.getElementById('recent-txns').innerHTML=recent.length?recent.map(t=>{
+    const d=fromEUR(t.amountEUR,activeCurrency);
+    const col=t.type==='income'?'var(--green)':t.type==='expense'?'var(--red)':'var(--blue)';
+    return `<tr><td>${t.date.slice(5)}</td><td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.desc}</td><td style="color:${col};font-weight:600">${t.type==='income'?'+':'−'}${fmt(d)}</td></tr>`;
+  }).join(''):'<tr><td colspan="3" class="empty">No transactions yet</td></tr>';
+
+  const catMap={};
+  transactions.filter(t=>t.type==='expense').forEach(t=>{catMap[t.cat]=(catMap[t.cat]||0)+t.amountEUR;});
+  const cats=Object.keys(catMap);
+  const vals=cats.map(c=>fromEUR(catMap[c],activeCurrency));
+  const colors=['#a78bfa','#6b9fff','#2dd4a0','#ff6b6b','#fbbf24','#f472b6','#34d399','#9ca3af'];
+  if(catChart)catChart.destroy();
+  if(cats.length){
+    catChart=new Chart(document.getElementById('chart-cat'),{
+      type:'doughnut',
+      data:{labels:cats,datasets:[{data:vals,backgroundColor:colors.slice(0,cats.length),borderWidth:0,hoverOffset:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+    });
+    document.getElementById('legend-cat').innerHTML=cats.map((c,i)=>`<span><span class="legend-dot" style="background:${colors[i%colors.length]}"></span>${c} ${fmt(vals[i])}</span>`).join('');
+  }
+
+  const months={};
+  transactions.forEach(t=>{
+    const m=t.date.substring(0,7);
+    if(!months[m])months[m]={inc:0,exp:0};
+    if(t.type==='income')months[m].inc+=fromEUR(t.amountEUR,activeCurrency);
+    if(t.type==='expense')months[m].exp+=fromEUR(t.amountEUR,activeCurrency);
+  });
+  const mkeys=Object.keys(months).sort().slice(-6);
+  if(monthChart)monthChart.destroy();
+  if(mkeys.length){
+    monthChart=new Chart(document.getElementById('chart-monthly'),{
+      type:'bar',
+      data:{labels:mkeys,datasets:[
+        {label:'Income',data:mkeys.map(m=>+months[m].inc.toFixed(2)),backgroundColor:'#2dd4a040',borderColor:'#2dd4a0',borderWidth:2},
+        {label:'Expenses',data:mkeys.map(m=>+months[m].exp.toFixed(2)),backgroundColor:'#ff6b6b40',borderColor:'#ff6b6b',borderWidth:2}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{color:'#5a5a80',font:{size:10},autoSkip:false,maxRotation:45}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#5a5a80',font:{size:10},callback:v=>sym(activeCurrency)+Math.round(v)}}}}
+    });
+  }
+}
+
+function addBudget(){
+  const cat=document.getElementById('budget-cat').value;
+  const amount=parseFloat(document.getElementById('budget-amount').value);
+  if(isNaN(amount)||amount<=0){alert('Enter a valid amount.');return;}
+  const idx=budgets.findIndex(b=>b.cat===cat);
+  if(idx>=0)budgets[idx].amountEUR=toEUR(amount,activeCurrency);else budgets.push({cat,amountEUR:toEUR(amount,activeCurrency)});
+  save();renderBudgets();
+  document.getElementById('budget-amount').value='';
+}
+
+function renderBudgets(){
+  const now=new Date().toISOString().substring(0,7);
+  const spent={};
+  transactions.filter(t=>t.type==='expense'&&t.date.startsWith(now)).forEach(t=>{spent[t.cat]=(spent[t.cat]||0)+t.amountEUR;});
+  const el=document.getElementById('budget-list');
+  if(!budgets.length){el.innerHTML='<p class="empty">No budgets set yet</p>';return;}
+  el.innerHTML=budgets.map(b=>{
+    const s=spent[b.cat]||0;
+    const pct=Math.min(100,Math.round(s/b.amountEUR*100));
+    const col=pct>90?'var(--red)':pct>70?'var(--amber)':'var(--green)';
+    return `<div class="goal-item">
+      <div class="goal-row"><span class="goal-name">${b.cat}</span><span class="goal-sub">${fmt(fromEUR(s,activeCurrency))} / ${fmt(fromEUR(b.amountEUR,activeCurrency))}</span></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">${pct}% used</div>
+    </div>`;
+  }).join('');
+}
+
+function addInvestment(){
+  const name=document.getElementById('inv-name').value.trim();
+  const type=document.getElementById('inv-type').value;
+  const cost=parseFloat(document.getElementById('inv-cost').value);
+  const value=parseFloat(document.getElementById('inv-value').value);
+  if(!name||isNaN(cost)||isNaN(value)){alert('Fill in all fields.');return;}
+  investments.push({id:Date.now(),name,type,costEUR:toEUR(cost,activeCurrency),valueEUR:toEUR(value,activeCurrency)});
+  save();renderInvestments();
+  document.getElementById('inv-name').value='';
+  document.getElementById('inv-cost').value='';
+  document.getElementById('inv-value').value='';
+}
+
+function deleteInv(id){investments=investments.filter(i=>i.id!==id);save();renderInvestments();}
+
+function renderInvestments(){
+  const tb=document.getElementById('inv-table');
+  if(!investments.length){tb.innerHTML='<tr><td colspan="6" class="empty">No investments yet</td></tr>';document.getElementById('inv-summary').style.display='none';return;}
+  tb.innerHTML=investments.map(i=>{
+    const cost=fromEUR(i.costEUR,activeCurrency);
+    const val=fromEUR(i.valueEUR,activeCurrency);
+    const gain=val-cost;
+    const gc=gain>=0?'var(--green)':'var(--red)';
+    return `<tr><td style="font-weight:600">${i.name}</td><td style="font-size:11px;color:var(--text2)">${i.type}</td><td>${fmt(cost)}</td><td>${fmt(val)}</td><td style="color:${gc};font-weight:600">${gain>=0?'+':''}${fmt(gain)}</td><td><button class="btn-danger-sm" onclick="deleteInv(${i.id})"><i class="ti ti-trash"></i></button></td></tr>`;
+  }).join('');
+  const tc=fromEUR(investments.reduce((s,i)=>s+i.costEUR,0),activeCurrency);
+  const tv=fromEUR(investments.reduce((s,i)=>s+i.valueEUR,0),activeCurrency);
+  const tg=tv-tc;
+  const sum=document.getElementById('inv-summary');
+  sum.style.display='flex';
+  sum.innerHTML=`<span>Invested: <strong>${fmt(tc)}</strong></span><span>Value: <strong>${fmt(tv)}</strong></span><span>Gain: <strong style="color:${tg>=0?'var(--green)':'var(--red)'}">${tg>=0?'+':''}${fmt(tg)}</strong></span>`;
+}
+
+function addGoal(){
+  const name=document.getElementById('goal-name').value.trim();
+  const target=parseFloat(document.getElementById('goal-target').value);
+  const saved=parseFloat(document.getElementById('goal-saved').value)||0;
+  const date=document.getElementById('goal-date').value;
+  if(!name||isNaN(target)){alert('Enter goal name and target.');return;}
+  goals.push({id:Date.now(),name,targetEUR:toEUR(target,activeCurrency),savedEUR:toEUR(saved,activeCurrency),date});
+  save();renderGoals();
+  document.getElementById('goal-name').value='';
+  document.getElementById('goal-target').value='';
+  document.getElementById('goal-saved').value='';
+}
+
+function deleteGoal(id){goals=goals.filter(g=>g.id!==id);save();renderGoals();}
+
+function renderGoals(){
+  const el=document.getElementById('goals-list');
+  if(!goals.length){el.innerHTML='<p class="empty">No goals yet</p>';return;}
+  el.innerHTML=goals.map(g=>{
+    const pct=Math.min(100,Math.round(g.savedEUR/g.targetEUR*100));
+    const col=pct>=100?'var(--green)':'var(--purple)';
+    return `<div class="goal-item">
+      <div class="goal-row">
+        <div><span class="goal-name">${g.name}${pct>=100?' ✓':''}</span>${g.date?`<div class="goal-sub">by ${g.date}</div>`:''}</div>
+        <button class="btn-danger-sm" onclick="deleteGoal(${g.id})"><i class="ti ti-trash"></i></button>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:12px;color:var(--text2)">
+        <span>${fmt(fromEUR(g.savedEUR,activeCurrency))} / ${fmt(fromEUR(g.targetEUR,activeCurrency))}</span>
+        <span>${pct}%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:3px">${fmt(fromEUR(g.targetEUR-g.savedEUR,activeCurrency))} remaining</div>
+    </div>`;
+  }).join('');
+}
+
+function handleCSV(text){
+  const lines=text.split('\n').filter(l=>l.trim());
+  let imported=0;
+  lines.slice(1).forEach(line=>{
+    const cols=line.split(',').map(c=>c.replace(/"/g,'').trim());
+    if(cols.length<3)return;
+    const date=cols[0],desc=cols[1],amount=parseFloat(cols[2]);
+    if(!date||!desc||isNaN(amount))return;
+    const type=amount>0?'income':'expense';
+    transactions.push({id:Date.now()+Math.random(),date,desc,type,cat:type==='income'?'Salary':'Other',amountEUR:toEUR(Math.abs(amount),activeCurrency),account:'Import',currency:activeCurrency});
+    imported++;
+  });
+  save();
+  return imported;
+}
+
+function showImportMsg(msg, ok){
+  document.getElementById('import-status').innerHTML=`<div style="background:${ok?'var(--green-bg)':'var(--red-bg)'};color:${ok?'var(--green)':'var(--red)'};padding:10px 12px;border-radius:8px;font-size:13px;margin-top:8px">${msg}</div>`;
+}
+
+function handleBankFile(input){
+  const file=input.files[0];if(!file)return;
+  document.getElementById('import-status').innerHTML='<div style="color:var(--text2);font-size:13px;padding:10px;text-align:center"><i class="ti ti-loader" style="animation:spin 1s linear infinite"></i> Reading file...</div>';
+  document.getElementById('import-result').innerHTML='';
+
+  if(file.name.toLowerCase().endsWith('.csv')){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const n=handleCSV(e.target.result);
+      showImportMsg('<i class="ti ti-check"></i> Imported '+n+' transactions from CSV.', true);
+      renderDashboard();
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  // Handle images (screenshots)
+  if(file.type.startsWith('image/')){
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      const base64=e.target.result.split(',')[1];
+      const mimeType=file.type;
+      document.getElementById('import-status').innerHTML='<div style="color:var(--text2);font-size:13px;padding:10px;text-align:center"><i class="ti ti-brain"></i> AI is reading your screenshot...</div>';
+      try{
+        const today=new Date().toISOString().slice(0,10);
+        const resp=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            model:'claude-sonnet-4-6',
+            max_tokens:4000,
+            messages:[{
+              role:'user',
+              content:[
+                {type:'image',source:{type:'base64',media_type:mimeType,data:base64}},
+                {type:'text',text:`Extract all transactions from this bank statement screenshot. Today is ${today}.
+Return ONLY a JSON array, no other text, no markdown, no explanation. Each item must have:
+- date: "YYYY-MM-DD"
+- desc: short description (merchant or transaction name)
+- amount: number (positive = money in, negative = money out)
+- cat: one of: Food & dining, Transport, Utilities, Housing, Entertainment, Healthcare, Shopping, Salary, Freelance, Savings account, Stocks, Crypto, Other
+
+Example: [{"date":"2024-01-15","desc":"Lidl","amount":-23.50,"cat":"Food & dining"}]`}
+              ]
+            }]
+          })
+        });
+        const data=await resp.json();
+        if(data.error){throw new Error(data.error.message);}
+        const text=data.content.map(b=>b.text||'').join('');
+        const clean=text.replace(/```json|```/g,'').trim();
+        const parsed=JSON.parse(clean);
+        if(!Array.isArray(parsed)||parsed.length===0){throw new Error('No transactions found in image');}
+        window._pendingPDF=parsed;
+        document.getElementById('import-result').innerHTML=`
+          <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-top:8px">
+            <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Found ${parsed.length} transactions — review before importing:</p>
+            <div style="max-height:240px;overflow-y:auto;margin-bottom:12px">
+              <table style="width:100%;font-size:12px">
+                <thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
+                <tbody>${parsed.slice(0,20).map(t=>`<tr>
+                  <td>${t.date}</td>
+                  <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.desc}</td>
+                  <td style="color:${t.amount>0?'var(--green)':'var(--red)'};font-weight:600">${t.amount>0?'+':''}${fmt(Math.abs(t.amount))}</td>
+                </tr>`).join('')}
+                ${parsed.length>20?`<tr><td colspan="3" style="color:var(--text3);text-align:center">...and ${parsed.length-20} more</td></tr>`:''}
+                </tbody>
+              </table>
+            </div>
+            <button class="btn btn-primary" onclick="confirmPDFImport()">Import all ${parsed.length} transactions</button>
+          </div>`;
+        document.getElementById('import-status').innerHTML='';
+      }catch(err){
+        showImportMsg('<i class="ti ti-alert-circle"></i> Could not read image: '+err.message, false);
+      }
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  if(file.name.toLowerCase().endsWith('.pdf')){
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      const base64=e.target.result.split(',')[1];
+      document.getElementById('import-status').innerHTML='<div style="color:var(--text2);font-size:13px;padding:10px;text-align:center"><i class="ti ti-brain"></i> AI is reading your bank statement...</div>';
+      try{
+        const today=new Date().toISOString().slice(0,10);
+        const resp=await fetch('https://api.anthropic.com/v1/messages',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            model:'claude-sonnet-4-6',
+            max_tokens:4000,
+            messages:[{
+              role:'user',
+              content:[
+                {type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},
+                {type:'text',text:`Extract all transactions from this bank statement. Today is ${today}.
+Return ONLY a JSON array, no other text, no markdown, no explanation. Each item must have:
+- date: "YYYY-MM-DD"
+- desc: short description (merchant or transaction name)
+- amount: number (positive = money in, negative = money out)
+- cat: one of: Food & dining, Transport, Utilities, Housing, Entertainment, Healthcare, Shopping, Salary, Freelance, Savings account, Stocks, Crypto, Other
+
+Example: [{"date":"2024-01-15","desc":"Lidl","amount":-23.50,"cat":"Food & dining"}]`}
+              ]
+            }]
+          })
+        });
+        const data=await resp.json();
+        if(data.error){throw new Error(data.error.message);}
+        const text=data.content.map(b=>b.text||'').join('');
+        const clean=text.replace(/```json|```/g,'').trim();
+        const parsed=JSON.parse(clean);
+        if(!Array.isArray(parsed)||parsed.length===0){throw new Error('No transactions found');}
+
+        // Show preview before importing
+        let pendingPDF=parsed;
+        document.getElementById('import-result').innerHTML=`
+          <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-top:8px">
+            <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Found ${parsed.length} transactions — review before importing:</p>
+            <div style="max-height:240px;overflow-y:auto;margin-bottom:12px">
+              <table style="width:100%;font-size:12px">
+                <thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
+                <tbody>${parsed.slice(0,20).map(t=>`<tr>
+                  <td>${t.date}</td>
+                  <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.desc}</td>
+                  <td style="color:${t.amount>0?'var(--green)':'var(--red)'};font-weight:600">${t.amount>0?'+':''}${fmt(Math.abs(t.amount))}</td>
+                </tr>`).join('')}
+                ${parsed.length>20?`<tr><td colspan="3" style="color:var(--text3);text-align:center">...and ${parsed.length-20} more</td></tr>`:''}
+                </tbody>
+              </table>
+            </div>
+            <button class="btn btn-primary" onclick="confirmPDFImport()">Import all ${parsed.length} transactions</button>
+          </div>`;
+        document.getElementById('import-status').innerHTML='';
+
+        window._pendingPDF=parsed;
+      }catch(err){
+        showImportMsg('<i class="ti ti-alert-circle"></i> Could not read PDF: '+err.message+'. Try exporting as CSV instead.', false);
+      }
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+  showImportMsg('Please upload a PDF or CSV file.', false);
+}
+
+async function handlePastedText(){
+  const text=document.getElementById('paste-text').value.trim();
+  if(!text){alert('Please paste some text first.');return;}
+  document.getElementById('paste-status').innerHTML='<div style="color:var(--text2);font-size:13px;padding:10px;text-align:center"><i class="ti ti-brain"></i> AI is reading your statement...</div>';
+  document.getElementById('paste-result').innerHTML='';
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:4000,
+        messages:[{
+          role:'user',
+          content:`Extract all transactions from this bank statement text. Today is ${today}.
+Return ONLY a JSON array, no other text, no markdown, no explanation. Each item must have:
+- date: "YYYY-MM-DD"
+- desc: short description (merchant or transaction name)
+- amount: number (positive = money in, negative = money out)
+- cat: one of: Food & dining, Transport, Utilities, Housing, Entertainment, Healthcare, Shopping, Salary, Freelance, Savings account, Stocks, Crypto, Other
+
+Bank statement text:
+${text}
+
+Example output: [{"date":"2024-01-15","desc":"Lidl","amount":-23.50,"cat":"Food & dining"}]`
+        }]
+      })
+    });
+    const data=await resp.json();
+    if(data.error){throw new Error(data.error.message);}
+    const raw=data.content.map(b=>b.text||'').join('');
+    const clean=raw.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const parsed=JSON.parse(clean);
+    if(!Array.isArray(parsed)||parsed.length===0){throw new Error('No transactions found');}
+    window._pendingPDF=parsed;
+    document.getElementById('paste-result').innerHTML=`
+      <div style="background:var(--bg3);border-radius:10px;padding:14px">
+        <p style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">Found ${parsed.length} transactions:</p>
+        <div style="max-height:220px;overflow-y:auto;margin-bottom:12px">
+          <table style="width:100%;font-size:12px">
+            <thead><tr><th>Date</th><th>Description</th><th>Amount</th></tr></thead>
+            <tbody>${parsed.slice(0,20).map(t=>`<tr>
+              <td>${t.date}</td>
+              <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.desc}</td>
+              <td style="color:${t.amount>0?'var(--green)':'var(--red)'};font-weight:600">${t.amount>0?'+':''}${fmt(Math.abs(t.amount))}</td>
+            </tr>`).join('')}
+            ${parsed.length>20?`<tr><td colspan="3" style="color:var(--text3);text-align:center">...and ${parsed.length-20} more</td></tr>`:''}
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-primary" onclick="confirmPasteImport()">Import all ${parsed.length} transactions</button>
+      </div>`;
+    document.getElementById('paste-status').innerHTML='';
+  }catch(err){
+    document.getElementById('paste-status').innerHTML=`<div style="background:var(--red-bg);color:var(--red);padding:10px 12px;border-radius:8px;font-size:13px"><i class="ti ti-alert-circle"></i> ${err.message}</div>`;
+  }
+}
+
+function confirmPasteImport(){
+  const parsed=window._pendingPDF;
+  if(!parsed)return;
+  parsed.forEach(t=>{
+    const type=t.amount>0?'income':'expense';
+    transactions.push({
+      id:Date.now()+Math.random(),
+      date:t.date,desc:t.desc,type,
+      cat:t.cat||'Other',
+      amountEUR:toEUR(Math.abs(t.amount),activeCurrency),
+      account:'Paste Import',currency:activeCurrency
+    });
+  });
+  save();
+  window._pendingPDF=null;
+  document.getElementById('paste-result').innerHTML='';
+  document.getElementById('paste-text').value='';
+  document.getElementById('paste-status').innerHTML=`<div style="background:var(--green-bg);color:var(--green);padding:10px 12px;border-radius:8px;font-size:13px"><i class="ti ti-check"></i> Imported ${parsed.length} transactions successfully!</div>`;
+  renderDashboard();
+}
+
+function confirmPDFImport(){
+  const parsed=window._pendingPDF;
+  if(!parsed)return;
+  parsed.forEach(t=>{
+    const type=t.amount>0?'income':'expense';
+    transactions.push({
+      id:Date.now()+Math.random(),
+      date:t.date,
+      desc:t.desc,
+      type,
+      cat:t.cat||'Other',
+      amountEUR:toEUR(Math.abs(t.amount),activeCurrency),
+      account:'PDF Import',
+      currency:activeCurrency
+    });
+  });
+  save();
+  window._pendingPDF=null;
+  document.getElementById('import-result').innerHTML='';
+  showImportMsg('<i class="ti ti-check"></i> Imported '+parsed.length+' transactions successfully!', true);
+  renderDashboard();
+}
+
+function exportData(){
+  const payload={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    currency:activeCurrency,
+    transactions,budgets,investments,goals
+  };
+  const json=JSON.stringify(payload,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const date=new Date().toISOString().slice(0,10);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`pujsek-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  const stats=`${transactions.length} transactions · ${investments.length} investments · ${goals.length} goals · ${budgets.length} budgets`;
+  document.getElementById('export-stats').textContent='Exported: '+stats;
+}
+
+let pendingImport=null;
+
+function previewImport(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.version||!data.transactions){throw new Error('Invalid file');}
+      pendingImport=data;
+      const t=data.transactions?.length||0;
+      const i=data.investments?.length||0;
+      const g=data.goals?.length||0;
+      const b=data.budgets?.length||0;
+      const date=data.exportedAt?new Date(data.exportedAt).toLocaleDateString():'unknown date';
+      document.getElementById('import-preview').innerHTML=`
+        <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-top:4px">
+          <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px">Backup from ${date}</p>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:14px">${t} transactions · ${i} investments · ${g} goals · ${b} budgets</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-primary" onclick="doImport('merge')" style="font-size:13px;padding:10px">Merge with existing</button>
+            <button class="btn" onclick="doImport('replace')" style="font-size:13px;padding:10px;background:var(--red-bg);color:var(--red);border:none">Replace all data</button>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">Merge keeps your current data and adds from backup. Replace wipes current data first.</p>
+        </div>`;
+    }catch(err){
+      document.getElementById('import-preview').innerHTML=`<div style="background:var(--red-bg);color:var(--red);padding:10px 12px;border-radius:8px;font-size:13px;margin-top:8px"><i class="ti ti-alert-circle"></i> Invalid backup file. Please choose a Pujsek .json backup.</div>`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function doImport(mode){
+  if(!pendingImport)return;
+  if(mode==='replace'){
+    if(!confirm('This will delete all current data and replace it with the backup. Are you sure?'))return;
+    transactions=pendingImport.transactions||[];
+    budgets=pendingImport.budgets||[];
+    investments=pendingImport.investments||[];
+    goals=pendingImport.goals||[];
+  } else {
+    const existingIds=new Set(transactions.map(t=>t.id));
+    (pendingImport.transactions||[]).forEach(t=>{if(!existingIds.has(t.id))transactions.push(t);});
+    const existingBudgetCats=new Set(budgets.map(b=>b.cat));
+    (pendingImport.budgets||[]).forEach(b=>{if(!existingBudgetCats.has(b.cat))budgets.push(b);});
+    const existingInvIds=new Set(investments.map(i=>i.id));
+    (pendingImport.investments||[]).forEach(i=>{if(!existingInvIds.has(i.id))investments.push(i);});
+    const existingGoalIds=new Set(goals.map(g=>g.id));
+    (pendingImport.goals||[]).forEach(g=>{if(!existingGoalIds.has(g.id))goals.push(g);});
+  }
+  save();
+  pendingImport=null;
+  document.getElementById('import-preview').innerHTML=`<div style="background:var(--green-bg);color:var(--green);padding:10px 12px;border-radius:8px;font-size:13px;margin-top:8px"><i class="ti ti-check"></i> Data ${mode==='replace'?'restored':'merged'} successfully! Go to Dashboard to see your data.</div>`;
+  document.getElementById('backup-file').value='';
+  renderDashboard();
+}
+
+document.getElementById('txn-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('goal-date').value=new Date(Date.now()+365*24*60*60*1000).toISOString().split('T')[0];
+document.getElementById('currency-select').value=activeCurrency;
+
+if (!window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone) {
+  document.getElementById('install-banner').style.display='block';
+}
+
+fetchRates();
+renderDashboard();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
